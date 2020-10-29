@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>9cf2db88-ccc9-4776-81c0-18e92a21d096</Guid>
+    <Name>WOTCDefensiveItemOverhaul2</Name>
+    <Description>Makes XCOM armor upgrades more granular by reducing bonus HP from armor, and adding bonus Shield HP that you can upgrade over the course of the campaign.
+
+tags= war of the chosen, gameplay</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>WOTCDefensiveItemOverhaul2</AssemblyName>
+    <RootNamespace>WOTCDefensiveItemOverhaul2</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Config\Base" />
+    <Folder Include="Localization\" />
+    <Folder Include="Content" />
+    <Folder Include="Src\" />
+    <Folder Include="Src\WOTCDefensiveItemOverhaul2\" />
+    <Folder Include="Src\WOTCDefensiveItemOverhaul2\Classes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\Base\XComEditor.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\Base\XComEngine.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\Base\XComGame.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComDefensiveOverhaul.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComGameCore.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComGameCore_Default.txt">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComStrategyTuning.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\IRIDefensiveOverhaul.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\WOTCDefensiveItemOverhaul2.int">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ReadMe.txt" />
+    <Content Include="ModPreview.jpg" />
+    <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\WOTCDefensiveItemOverhaul2\Classes\X2Ability_DefensiveOverhaul.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCDefensiveItemOverhaul2\Classes\X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2.uc" />
+    <Content Include="Src\WOTCDefensiveItemOverhaul2\Classes\X2Effect_DefensiveOverhaul.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\WOTCDefensiveItemOverhaul2\Classes\X2Item_DefensiveOverhaul.uc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
+</Project>
