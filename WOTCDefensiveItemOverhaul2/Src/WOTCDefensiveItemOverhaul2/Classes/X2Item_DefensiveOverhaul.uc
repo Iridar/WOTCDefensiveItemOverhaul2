@@ -1,4 +1,4 @@
-class X2Item_DefensiveOverhaul extends X2Item dependson(X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2);
+class X2Item_DefensiveOverhaul extends X2Item dependson(XComGameState_ArmorOverhaul);
 
 static function array<X2DataTemplate> CreateTemplates()
 {
@@ -6,7 +6,7 @@ static function array<X2DataTemplate> CreateTemplates()
 	local array<DefensiveOverhaulStruct>	Unlocks;
 	local int i;
 
-	Unlocks = class'X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2'.default.AblativePlatingUnlocks;
+	Unlocks = class'XComGameState_ArmorOverhaul'.default.AblativePlatingUnlocks;
 
 	for (i = 0; i < Unlocks.Length; i++)
 	{

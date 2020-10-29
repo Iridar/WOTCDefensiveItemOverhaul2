@@ -7,7 +7,7 @@ simulated protected function OnEffectAdded(const out EffectAppliedData ApplyEffe
 	local StatChange NewStateChange;
 
 	NewStateChange.StatType = default.AblativePlatingStatType;
-	NewStateChange.StatAmount = class'X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2'.static.CalculateShieldBonus();
+	NewStateChange.StatAmount = class'XComGameState_ArmorOverhaul'.static.GetShieldBonus();
 	NewStateChange.ModOp = MODOP_Addition;
 
 	m_aStatChanges.Length = 0;

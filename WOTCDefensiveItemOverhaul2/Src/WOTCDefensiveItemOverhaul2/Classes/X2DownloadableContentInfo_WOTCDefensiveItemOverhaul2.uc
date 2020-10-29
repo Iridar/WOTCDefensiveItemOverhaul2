@@ -1,17 +1,5 @@
 class X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2 extends X2DownloadableContentInfo;
 
-struct DefensiveOverhaulStruct
-{
-	var int		ShieldHP;
-	var name	CreateSchematic;
-	var string	SchematicImage;
-
-	var StrategyRequirement Requirements;
-	var StrategyRequirement SchematicRequirements;
-	var StrategyCost		SchematicCost;
-};
-var config(DefensiveOverhaul) array<DefensiveOverhaulStruct> AblativePlatingUnlocks;
-
 var config(DefensiveOverhaul) bool bLog;
 var config(DefensiveOverhaul) array<name> PatchArmorStatAbilities;
 var config(DefensiveOverhaul) array<name> PatchArmorItems;
@@ -29,6 +17,7 @@ static private function PatchArmorTemplate(X2DataTemplate DataTemplate)
 {
 	local X2ArmorTemplate	Template;
 	local name				AbilityName;
+	local int				iMax;
 
 	Template = X2ArmorTemplate(DataTemplate);
 	
@@ -43,78 +32,34 @@ static private function PatchArmorTemplate(X2DataTemplate DataTemplate)
 
 				Template.Abilities.AddItem('IRI_DefensiveOverhaul_Passive');
 
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 1, true, ShouldDisplayBonus_T1);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 2, true, ShouldDisplayBonus_T2);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 3, true, ShouldDisplayBonus_T3);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 4, true, ShouldDisplayBonus_T4);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 5, true, ShouldDisplayBonus_T5);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 6, true, ShouldDisplayBonus_T6);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 7, true, ShouldDisplayBonus_T7);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 8, true, ShouldDisplayBonus_T8);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 9, true, ShouldDisplayBonus_T9);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 10, true, ShouldDisplayBonus_T10);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 11, true, ShouldDisplayBonus_T11);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 12, true, ShouldDisplayBonus_T12);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 13, true, ShouldDisplayBonus_T13);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 14, true, ShouldDisplayBonus_T14);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 15, true, ShouldDisplayBonus_T15);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 16, true, ShouldDisplayBonus_T16);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 17, true, ShouldDisplayBonus_T17);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 18, true, ShouldDisplayBonus_T18);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 19, true, ShouldDisplayBonus_T19);
-				Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 20, true, ShouldDisplayBonus_T20);
+				//	Only adding markup if the shield HP can actually get that high to reduce performance impact when it's not necessary.
+				iMax = class'XComGameState_ArmorOverhaul'.static.GetMaxShieldBonus();
+
+				if (iMax > 0) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 1, true, ShouldDisplayBonus_T1);
+				if (iMax > 1) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 2, true, ShouldDisplayBonus_T2);
+				if (iMax > 2) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 3, true, ShouldDisplayBonus_T3);
+				if (iMax > 3) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 4, true, ShouldDisplayBonus_T4);
+				if (iMax > 4) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 5, true, ShouldDisplayBonus_T5);
+				if (iMax > 5) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 6, true, ShouldDisplayBonus_T6);
+				if (iMax > 6) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 7, true, ShouldDisplayBonus_T7);
+				if (iMax > 7) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 8, true, ShouldDisplayBonus_T8);
+				if (iMax > 8) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 9, true, ShouldDisplayBonus_T9);
+				if (iMax > 9) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 10, true, ShouldDisplayBonus_T10);
+				if (iMax > 10) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 11, true, ShouldDisplayBonus_T11);
+				if (iMax > 11) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 12, true, ShouldDisplayBonus_T12);
+				if (iMax > 12) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 13, true, ShouldDisplayBonus_T13);
+				if (iMax > 13) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 14, true, ShouldDisplayBonus_T14);
+				if (iMax > 14) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 15, true, ShouldDisplayBonus_T15);
+				if (iMax > 15) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 16, true, ShouldDisplayBonus_T16);
+				if (iMax > 16) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 17, true, ShouldDisplayBonus_T17);
+				if (iMax > 17) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 18, true, ShouldDisplayBonus_T18);
+				if (iMax > 18) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 19, true, ShouldDisplayBonus_T19);
+				if (iMax > 19) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 20, true, ShouldDisplayBonus_T20);
 
 				return;
 			}
 		}
 	}
-}
-
-static function int CalculateShieldBonus()
-{
-	local XComGameState_HeadquartersXCom XComHQ;
-	local int ShieldBonus;
-	local int i;
-
-	XComHQ = `XCOMHQ;
-	for (i = 0; i < default.AblativePlatingUnlocks.Length; i++)
-	{
-		`LOG("Checking Strategic Requirements for Unlock #:" @ i, default.bLog, 'ArmorOverhaul');
-
-		if (XComHQ.MeetsAllStrategyRequirements(default.AblativePlatingUnlocks[i].Requirements))
-		{
-			`LOG("Requirements met, increasing Ablative Plating bonus by:" @ default.AblativePlatingUnlocks[i].ShieldHP, default.bLog, 'ArmorOverhaul');
-
-			ShieldBonus += default.AblativePlatingUnlocks[i].ShieldHP;
-		}
-		else `LOG("Requirements are not met.", default.bLog, 'DefensiveOverhaul');
-	}
-
-	`LOG("## Total bonus:" @ ShieldBonus, default.bLog, 'DefensiveOverhaul');
-
-	if (`SecondWaveEnabled('BetaStrike'))
-	{
-		ShieldBonus *= class'X2StrategyGameRulesetDataStructures'.default.SecondWaveBetaStrikeHealthMod;
-	}
-	
-	return ShieldBonus;
-}
-
-static function int GetNumAblativeUpgrades()
-{
-	local XComGameState_HeadquartersXCom XComHQ;
-	local int iUpgrades;
-	local int i;
-
-	XComHQ = `XCOMHQ;
-	for (i = 0; i < default.AblativePlatingUnlocks.Length; i++)
-	{
-		if (XComHQ.MeetsAllStrategyRequirements(default.AblativePlatingUnlocks[i].Requirements))
-		{
-			iUpgrades++;
-		}
-	}
-	return iUpgrades;
 }
 
 static function OverrideItemImage(out array<string> imagePath, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, XComGameState_Unit UnitState)
@@ -126,7 +71,7 @@ static function OverrideItemImage(out array<string> imagePath, const EInventoryS
 
 	if (Template != none && Template.Abilities.Find('IRI_DefensiveOverhaul_Passive') != INDEX_NONE)
 	{
-		iUpgrades = GetNumAblativeUpgrades();
+		iUpgrades = class'XComGameState_ArmorOverhaul'.static.GetNumAblativeUpgrades();
 
 		if (iUpgrades == 0)
 			return;
@@ -145,83 +90,83 @@ static function OverrideItemImage(out array<string> imagePath, const EInventoryS
 
 static private function bool ShouldDisplayBonus_T1()
 {
-	return CalculateShieldBonus() == 1;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 1;
 }
 static private function bool ShouldDisplayBonus_T2()
 {
-	return CalculateShieldBonus() == 2;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 2;
 }
 static private function bool ShouldDisplayBonus_T3()
 {
-	return CalculateShieldBonus() == 3;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 3;
 }
 static private function bool ShouldDisplayBonus_T4()
 {
-	return CalculateShieldBonus() == 4;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 4;
 }
 static private function bool ShouldDisplayBonus_T5()
 {
-	return CalculateShieldBonus() == 5;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 5;
 }
 static private function bool ShouldDisplayBonus_T6()
 {
-	return CalculateShieldBonus() == 6;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 6;
 }
 static private function bool ShouldDisplayBonus_T7()
 {
-	return CalculateShieldBonus() == 7;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 7;
 }
 static private function bool ShouldDisplayBonus_T8()
 {
-	return CalculateShieldBonus() == 8;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 8;
 }
 static private function bool ShouldDisplayBonus_T9()
 {
-	return CalculateShieldBonus() == 9;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 9;
 }
 static private function bool ShouldDisplayBonus_T10()
 {
-	return CalculateShieldBonus() == 10;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 10;
 }
 static private function bool ShouldDisplayBonus_T11()
 {
-	return CalculateShieldBonus() == 11;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 11;
 }
 static private function bool ShouldDisplayBonus_T12()
 {
-	return CalculateShieldBonus() == 12;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 12;
 }
 static private function bool ShouldDisplayBonus_T13()
 {
-	return CalculateShieldBonus() == 13;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 13;
 }
 static private function bool ShouldDisplayBonus_T14()
 {
-	return CalculateShieldBonus() == 14;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 14;
 }
 static private function bool ShouldDisplayBonus_T15()
 {
-	return CalculateShieldBonus() == 15;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 15;
 }
 static private function bool ShouldDisplayBonus_T16()
 {
-	return CalculateShieldBonus() == 16;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 16;
 }
 static private function bool ShouldDisplayBonus_T17()
 {
-	return CalculateShieldBonus() == 17;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 17;
 }
 static private function bool ShouldDisplayBonus_T18()
 {
-	return CalculateShieldBonus() == 18;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 18;
 }
 static private function bool ShouldDisplayBonus_T19()
 {
-	return CalculateShieldBonus() == 19;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 19;
 }
 static private function bool ShouldDisplayBonus_T20()
 {
-	return CalculateShieldBonus() == 20;
+	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 20;
 }
 //	===================================================================================================================================
 //														TEMPLATE PATCHING HELPERS
