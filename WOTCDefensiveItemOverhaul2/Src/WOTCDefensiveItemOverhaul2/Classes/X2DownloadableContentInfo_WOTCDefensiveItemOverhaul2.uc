@@ -6,18 +6,89 @@ var config(DefensiveOverhaul) array<name> PatchArmorItems;
 var config(DefensiveOverhaul) array<string> ArmorUpgradeIcons;
 var localized string strAblativeShieldHPLabel;
 
+struct PatchArmorStruct
+{
+	var name AbilityTemplate;
+	var int HealthBonus;
+};
+var config(DefensiveOverhaul) array<PatchArmorStruct> SetArmorHealthBonus;
+
 delegate ModifyTemplate(X2DataTemplate DataTemplate);
 
 static event OnPostTemplatesCreated()
 {
-	IterateTemplatesAllDiff(class'X2ArmorTemplate', PatchArmorTemplate);
-}
+	local PatchArmorStruct			PatchArmor;
+	local X2AbilityTemplateManager  AbilityTemplateManager;
+    local X2AbilityTemplate         Template;
+    local array<X2DataTemplate>     DifficultyVariants;
+    local X2DataTemplate            DifficultyVariant;
+	local X2Effect					Effect;
+	local X2Effect_PersistentStatChange	StatEffect;
+	local bool						bStatPatched;
+	local int i;
 
+	IterateTemplatesAllDiff(class'X2ArmorTemplate', PatchArmorTemplate);
+
+    AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
+	foreach default.SetArmorHealthBonus(PatchArmor)
+	{
+		`LOG("Looking to set health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus, default.bLog, 'ArmorOverhaul');
+
+		AbilityTemplateManager.FindDataTemplateAllDifficulties(PatchArmor.AbilityTemplate, DifficultyVariants);
+
+		foreach DifficultyVariants(DifficultyVariant)
+		{
+			Template = X2AbilityTemplate(DifficultyVariant);
+			if (Template != none)
+			{	
+				bStatPatched = false;
+				foreach Template.AbilityTargetEffects(Effect)
+				{
+					StatEffect = X2Effect_PersistentStatChange(Effect);
+					if (StatEffect != none)
+					{
+						for (i = 0; i  < StatEffect.m_aStatChanges.Length; i++)
+						{
+							if (StatEffect.m_aStatChanges[i].StatType == eStat_HP)
+							{	
+								StatEffect.m_aStatChanges[i].StatAmount = PatchArmor.HealthBonus;
+								bStatPatched = true;
+								`LOG("Setting health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus, default.bLog, 'ArmorOverhaul');
+								break;
+							}
+						}
+					}
+				}
+
+				if (bStatPatched) continue;
+
+				foreach Template.AbilityShooterEffects(Effect)
+				{
+					StatEffect = X2Effect_PersistentStatChange(Effect);
+					if (StatEffect != none)
+					{
+						for (i = 0; i  < StatEffect.m_aStatChanges.Length; i++)
+						{
+							if (StatEffect.m_aStatChanges[i].StatType == eStat_HP)
+							{	
+								StatEffect.m_aStatChanges[i].StatAmount = PatchArmor.HealthBonus;
+								`LOG("Setting health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus, default.bLog, 'ArmorOverhaul');
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
 static private function PatchArmorTemplate(X2DataTemplate DataTemplate)
 {
 	local X2ArmorTemplate	Template;
 	local name				AbilityName;
 	local int				iMax;
+	local int				Index;
+	local int i;
 
 	Template = X2ArmorTemplate(DataTemplate);
 	
@@ -28,7 +99,7 @@ static private function PatchArmorTemplate(X2DataTemplate DataTemplate)
 			if ((Template.Abilities.Find(AbilityName) != INDEX_NONE || default.PatchArmorItems.Find(Template.DataName) != INDEX_NONE) &&
 				 Template.Abilities.Find('IRI_DefensiveOverhaul_Passive') == INDEX_NONE)
 			{
-				`LOG("Adding Ablative Plating to armor:" @ Template.FriendlyName @ Template.DataName,, 'ArmorOverhaul');
+				`LOG("Adding Ablative Plating to armor:" @ Template.FriendlyName @ Template.DataName, default.bLog, 'ArmorOverhaul');
 
 				Template.Abilities.AddItem('IRI_DefensiveOverhaul_Passive');
 
@@ -55,6 +126,19 @@ static private function PatchArmorTemplate(X2DataTemplate DataTemplate)
 				if (iMax > 17) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 18, true, ShouldDisplayBonus_T18);
 				if (iMax > 18) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 19, true, ShouldDisplayBonus_T19);
 				if (iMax > 19) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 20, true, ShouldDisplayBonus_T20);
+
+				Index = default.SetArmorHealthBonus.Find('AbilityTemplate', AbilityName);
+				if (Index != INDEX_NONE)
+				{
+					for (i = 0; i < Template.UIStatMarkups.Length; i++)
+					{
+						if (Template.UIStatMarkups[i].StatType == eStat_HP)
+						{
+							Template.UIStatMarkups[i].StatModifier = default.SetArmorHealthBonus[Index].HealthBonus;
+							break;
+						}
+					}
+				}
 
 				return;
 			}
