@@ -47,9 +47,18 @@ tags= war of the chosen, gameplay</Description>
     <Content Include="Localization\WOTCDefensiveItemOverhaul2.int">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Localization\WOTCDefensiveItemOverhaul2.rus">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Localization\XComGame.rus">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ReadMe.txt" />
     <Content Include="ModPreview.jpg" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="ReadMe_Rus.txt">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\WOTCDefensiveItemOverhaul2\Classes\UIScreenListener_ArmorOverhaul.uc">
       <SubType>Content</SubType>
     </Content>

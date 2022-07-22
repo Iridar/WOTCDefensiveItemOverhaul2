@@ -21,27 +21,35 @@ var private int iNumAblativeUpgrades;
 //	-------------------------- PUBLIC INTERFACE FUNCTIONS -------------------------- 
 
 // class'XComGameState_ArmorOverhaul'.static.GetShieldBonus()
-static function int GetShieldBonus()
+static final function int GetShieldBonus()
 {
 	local XComGameState_ArmorOverhaul Obj;
 
-	GetOrCreate(Obj);
+	Obj = XComGameState_ArmorOverhaul(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_ArmorOverhaul', true));
+	if (Obj == none)
+	{
+		return 0;
+	}
 
 	return Obj.iShieldBonus;
 }
 
 // class'XComGameState_ArmorOverhaul'.static.GetNumAblativeUpgrades()
-static function int GetNumAblativeUpgrades()
+static final function int GetNumAblativeUpgrades()
 {
 	local XComGameState_ArmorOverhaul Obj;
 
-	GetOrCreate(Obj);
+	Obj = XComGameState_ArmorOverhaul(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_ArmorOverhaul', true));
+	if (Obj == none)
+	{
+		return 0;
+	}
 
 	return Obj.iNumAblativeUpgrades;
 }
 
 // class'XComGameState_ArmorOverhaul'.static.GetMaxShieldBonus()
-static function int GetMaxShieldBonus()
+static final function int GetMaxShieldBonus()
 {
 	local DefensiveOverhaulStruct AblativePlatingUnlock;
 	local int iMaxShieldBonus;
@@ -54,19 +62,24 @@ static function int GetMaxShieldBonus()
 }
 
 // class'XComGameState_ArmorOverhaul'.static.Update()
-static function Update()
+static final function Update()
 {
 	local XComGameState_ArmorOverhaul Obj;
 	local XComGameState NewGameState;
 
-	if (GetOrCreate(Obj))
+	Obj = XComGameState_ArmorOverhaul(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_ArmorOverhaul', true));
+	if (Obj == none)
+	{
+		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Creating Armor Overhaul Object");
+		Obj = XComGameState_ArmorOverhaul(NewGameState.CreateNewStateObject(class'XComGameState_ArmorOverhaul'));
+		UpdateInternal(Obj);
+		`GAMERULES.SubmitGameState(NewGameState);
+	}
+	else
 	{
 		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Updating Armor Overhaul Object");
-
 		Obj = XComGameState_ArmorOverhaul(NewGameState.ModifyStateObject(class'XComGameState_ArmorOverhaul', Obj.ObjectID));
-
 		UpdateInternal(Obj);
-
 		`GAMERULES.SubmitGameState(NewGameState);
 	}
 }
@@ -75,23 +88,23 @@ static function Update()
 
 static private function UpdateInternal(XComGameState_ArmorOverhaul NewObj)
 {
-	local XComGameState_HeadquartersXCom XComHQ;
+	local XComGameState_HeadquartersXCom	XComHQ;
+	local DefensiveOverhaulStruct			Unlock;
 	local int uUpgrades;
 	local int uShieldBonus;
 	local int i;
 
 	XComHQ = `XCOMHQ;
-
-	for (i = 0; i < default.AblativePlatingUnlocks.Length; i++)
+	foreach default.AblativePlatingUnlocks(Unlock, i)
 	{
 		`LOG("Checking Strategic Requirements for Unlock #:" @ i, class'X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2'.default.bLog, 'ArmorOverhaul');
 
-		if (XComHQ.MeetsAllStrategyRequirements(default.AblativePlatingUnlocks[i].Requirements))
+		if (XComHQ.MeetsAllStrategyRequirements(Unlock.Requirements))
 		{
-			`LOG("Requirements met, increasing Ablative Plating bonus by:" @ default.AblativePlatingUnlocks[i].ShieldHP, class'X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2'.default.bLog, 'ArmorOverhaul');
+			`LOG("Requirements met, increasing Ablative Plating bonus by:" @ Unlock.ShieldHP, class'X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2'.default.bLog, 'ArmorOverhaul');
 
 			uUpgrades++;
-			uShieldBonus += default.AblativePlatingUnlocks[i].ShieldHP;
+			uShieldBonus += Unlock.ShieldHP;
 		}
 		else `LOG("Requirements are not met.", class'X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2'.default.bLog, 'DefensiveOverhaul');
 	}
@@ -107,23 +120,3 @@ static private function UpdateInternal(XComGameState_ArmorOverhaul NewObj)
 	NewObj.iNumAblativeUpgrades = uUpgrades;
 }
 
-// Returns true if the object was retrieved from history and needs an update.
-// Returns false if the object was just created and updated.
-static private function bool GetOrCreate(out XComGameState_ArmorOverhaul Obj)
-{
-	local XComGameState NewGameState;
-
-	Obj = XComGameState_ArmorOverhaul(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_ArmorOverhaul', true));
-
-	if (Obj == none)
-	{
-		NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("Creating Armor Overhaul Object");
-		Obj = XComGameState_ArmorOverhaul(NewGameState.CreateNewStateObject(class'XComGameState_ArmorOverhaul'));
-		UpdateInternal(Obj);
-		`GAMERULES.SubmitGameState(NewGameState);
-
-		return false;
-	}
-
-	return true;
-}

@@ -6,10 +6,18 @@ event OnInit (UIScreen Screen)
 
 	if (UIArmory_Loadout(Screen) != none || UIPersonnel_Armory(Screen) != none)
 	{
-		class'XComGameState_ArmorOverhaul'.static.Update();
+		if (IsInStrategy())
+		{
+			class'XComGameState_ArmorOverhaul'.static.Update();
+		}
 	}
 
 	//UIArmory_MainMenu
 	//UIArmory_Loadout
 	//UIPersonnel_Armory
+}
+
+private function bool IsInStrategy()
+{
+	return `HQGAME  != none && `HQPC != None && `HQPRES != none;
 }
