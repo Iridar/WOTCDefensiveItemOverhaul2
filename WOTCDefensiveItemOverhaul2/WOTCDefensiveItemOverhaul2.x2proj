@@ -38,7 +38,7 @@ tags= war of the chosen, gameplay</Description>
     <Content Include="Config\XComGameCore_Default.txt">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Config\XComStrategyTuning.ini">
+    <Content Include="Config\XComTemplateEditor.ini">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Content\IRIDefensiveOverhaul.upk">
