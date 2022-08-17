@@ -10,6 +10,7 @@ struct PatchArmorStruct
 {
 	var name AbilityTemplate;
 	var int HealthBonus;
+	var ECharStatType ReplaceHPStatType;
 };
 var config(DefensiveOverhaul) array<PatchArmorStruct> SetArmorHealthBonus;
 
@@ -17,17 +18,42 @@ delegate ModifyTemplate(X2DataTemplate DataTemplate);
 
 static event OnPostTemplatesCreated()
 {
-	local PatchArmorStruct			PatchArmor;
-	local X2AbilityTemplateManager  AbilityTemplateManager;
-    local X2AbilityTemplate         Template;
-    local array<X2DataTemplate>     DifficultyVariants;
-    local X2DataTemplate            DifficultyVariant;
-	local X2Effect					Effect;
+	local PatchArmorStruct				PatchArmor;
+	local X2AbilityTemplateManager		AbilityTemplateManager;
+    local X2AbilityTemplate				Template;
+    local array<X2DataTemplate>			DifficultyVariants;
+    local X2DataTemplate				DifficultyVariant;
+	local X2Effect						Effect;
 	local X2Effect_PersistentStatChange	StatEffect;
-	local bool						bStatPatched;
+	local bool							bStatPatched;
+	local X2ItemTemplateManager			ItemMgr;
+	local X2ArmorTemplate				ArmorTemplate;
+	local X2DataTemplate				DataTemplate;
+	local name							AbilityName;
 	local int i;
 
-	IterateTemplatesAllDiff(class'X2ArmorTemplate', PatchArmorTemplate);
+	ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+	foreach ItemMgr.IterateTemplates(DataTemplate)
+	{
+		ArmorTemplate = X2ArmorTemplate(DataTemplate);
+		if (ArmorTemplate == none)
+			continue;
+
+		if (default.PatchArmorItems.Find(ArmorTemplate.DataName) != INDEX_NONE)
+		{
+			PatchArmorTemplate(ArmorTemplate);
+		}
+		else
+		{
+			foreach ArmorTemplate.Abilities(AbilityName)
+			{
+				if (default.SetArmorHealthBonus.Find('AbilityTemplate', AbilityName) != INDEX_NONE)
+				{
+					PatchArmorTemplate(ArmorTemplate);
+				}
+			}
+		}
+	}
 
     AbilityTemplateManager = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
 	foreach default.SetArmorHealthBonus(PatchArmor)
@@ -52,8 +78,12 @@ static event OnPostTemplatesCreated()
 							if (StatEffect.m_aStatChanges[i].StatType == eStat_HP)
 							{	
 								StatEffect.m_aStatChanges[i].StatAmount = PatchArmor.HealthBonus;
+								if (PatchArmor.ReplaceHPStatType != eStat_Invalid)
+								{
+									StatEffect.m_aStatChanges[i].StatType = PatchArmor.ReplaceHPStatType;
+								}
 								bStatPatched = true;
-								`LOG("Setting health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus, default.bLog, 'ArmorOverhaul');
+								`LOG("Setting health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus @ StatEffect.m_aStatChanges[i].StatType, default.bLog, 'ArmorOverhaul');
 								break;
 							}
 						}
@@ -72,7 +102,11 @@ static event OnPostTemplatesCreated()
 							if (StatEffect.m_aStatChanges[i].StatType == eStat_HP)
 							{	
 								StatEffect.m_aStatChanges[i].StatAmount = PatchArmor.HealthBonus;
-								`LOG("Setting health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus, default.bLog, 'ArmorOverhaul');
+								if (PatchArmor.ReplaceHPStatType != eStat_Invalid)
+								{
+									StatEffect.m_aStatChanges[i].StatType = PatchArmor.ReplaceHPStatType;
+								}
+								`LOG("Setting health bonus for ability:" @ PatchArmor.AbilityTemplate @ "to" @ PatchArmor.HealthBonus @ StatEffect.m_aStatChanges[i].StatType, default.bLog, 'ArmorOverhaul');
 								break;
 							}
 						}
@@ -82,66 +116,68 @@ static event OnPostTemplatesCreated()
 		}
 	}
 }
-static private function PatchArmorTemplate(X2DataTemplate DataTemplate)
+static private function PatchArmorTemplate(out X2ArmorTemplate Template)
 {
-	local X2ArmorTemplate	Template;
-	local name				AbilityName;
-	local int				iMax;
-	local int				Index;
-	local int i;
+	local name	AbilityName;
+	local int	iMax;
+	local int	Index;
+	local int	i;
 
-	Template = X2ArmorTemplate(DataTemplate);
-	
-	if (Template != none)
+	`LOG("Adding Ablative Plating to armor:" @ Template.FriendlyName @ Template.DataName, default.bLog, 'ArmorOverhaul');
+
+	Template.Abilities.AddItem('IRI_DefensiveOverhaul_Passive');
+
+	//	Only adding markup if the shield HP can actually get that high to reduce performance impact when it's not necessary.
+	iMax = class'XComGameState_ArmorOverhaul'.static.GetMaxShieldBonus();
+
+	if (iMax > 0) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 1, true, ShouldDisplayBonus_T1);
+	if (iMax > 1) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 2, true, ShouldDisplayBonus_T2);
+	if (iMax > 2) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 3, true, ShouldDisplayBonus_T3);
+	if (iMax > 3) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 4, true, ShouldDisplayBonus_T4);
+	if (iMax > 4) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 5, true, ShouldDisplayBonus_T5);
+	if (iMax > 5) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 6, true, ShouldDisplayBonus_T6);
+	if (iMax > 6) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 7, true, ShouldDisplayBonus_T7);
+	if (iMax > 7) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 8, true, ShouldDisplayBonus_T8);
+	if (iMax > 8) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 9, true, ShouldDisplayBonus_T9);
+	if (iMax > 9) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 10, true, ShouldDisplayBonus_T10);
+	if (iMax > 10) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 11, true, ShouldDisplayBonus_T11);
+	if (iMax > 11) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 12, true, ShouldDisplayBonus_T12);
+	if (iMax > 12) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 13, true, ShouldDisplayBonus_T13);
+	if (iMax > 13) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 14, true, ShouldDisplayBonus_T14);
+	if (iMax > 14) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 15, true, ShouldDisplayBonus_T15);
+	if (iMax > 15) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 16, true, ShouldDisplayBonus_T16);
+	if (iMax > 16) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 17, true, ShouldDisplayBonus_T17);
+	if (iMax > 17) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 18, true, ShouldDisplayBonus_T18);
+	if (iMax > 18) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 19, true, ShouldDisplayBonus_T19);
+	if (iMax > 19) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 20, true, ShouldDisplayBonus_T20);
+
+	foreach Template.Abilities(AbilityName)
 	{
-		foreach default.PatchArmorStatAbilities(AbilityName)
+		`LOG("Looking at armor ability:" @ AbilityName, default.bLog, 'ArmorOverhaul');
+		Index = default.SetArmorHealthBonus.Find('AbilityTemplate', AbilityName);
+		if (Index != INDEX_NONE)
 		{
-			if ((Template.Abilities.Find(AbilityName) != INDEX_NONE || default.PatchArmorItems.Find(Template.DataName) != INDEX_NONE) &&
-				 Template.Abilities.Find('IRI_DefensiveOverhaul_Passive') == INDEX_NONE)
+			`LOG("We change this ability's bonus.", default.bLog, 'ArmorOverhaul');
+			for (i = 0; i < Template.UIStatMarkups.Length; i++)
 			{
-				`LOG("Adding Ablative Plating to armor:" @ Template.FriendlyName @ Template.DataName, default.bLog, 'ArmorOverhaul');
-
-				Template.Abilities.AddItem('IRI_DefensiveOverhaul_Passive');
-
-				//	Only adding markup if the shield HP can actually get that high to reduce performance impact when it's not necessary.
-				iMax = class'XComGameState_ArmorOverhaul'.static.GetMaxShieldBonus();
-
-				if (iMax > 0) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 1, true, ShouldDisplayBonus_T1);
-				if (iMax > 1) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 2, true, ShouldDisplayBonus_T2);
-				if (iMax > 2) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 3, true, ShouldDisplayBonus_T3);
-				if (iMax > 3) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 4, true, ShouldDisplayBonus_T4);
-				if (iMax > 4) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 5, true, ShouldDisplayBonus_T5);
-				if (iMax > 5) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 6, true, ShouldDisplayBonus_T6);
-				if (iMax > 6) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 7, true, ShouldDisplayBonus_T7);
-				if (iMax > 7) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 8, true, ShouldDisplayBonus_T8);
-				if (iMax > 8) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 9, true, ShouldDisplayBonus_T9);
-				if (iMax > 9) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 10, true, ShouldDisplayBonus_T10);
-				if (iMax > 10) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 11, true, ShouldDisplayBonus_T11);
-				if (iMax > 11) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 12, true, ShouldDisplayBonus_T12);
-				if (iMax > 12) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 13, true, ShouldDisplayBonus_T13);
-				if (iMax > 13) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 14, true, ShouldDisplayBonus_T14);
-				if (iMax > 14) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 15, true, ShouldDisplayBonus_T15);
-				if (iMax > 15) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 16, true, ShouldDisplayBonus_T16);
-				if (iMax > 16) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 17, true, ShouldDisplayBonus_T17);
-				if (iMax > 17) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 18, true, ShouldDisplayBonus_T18);
-				if (iMax > 18) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 19, true, ShouldDisplayBonus_T19);
-				if (iMax > 19) Template.SetUIStatMarkup(default.strAblativeShieldHPLabel, class'X2Effect_DefensiveOverhaul'.default.AblativePlatingStatType, 20, true, ShouldDisplayBonus_T20);
-
-				Index = default.SetArmorHealthBonus.Find('AbilityTemplate', AbilityName);
-				if (Index != INDEX_NONE)
+				if (Template.UIStatMarkups[i].StatType == eStat_HP)
 				{
-					for (i = 0; i < Template.UIStatMarkups.Length; i++)
-					{
-						if (Template.UIStatMarkups[i].StatType == eStat_HP)
-						{
-							Template.UIStatMarkups[i].StatModifier = default.SetArmorHealthBonus[Index].HealthBonus;
-							break;
-						}
-					}
-				}
+					`LOG("Found HP markup, patching.", default.bLog, 'ArmorOverhaul');
 
-				return;
+					Template.UIStatMarkups[i].StatModifier = default.SetArmorHealthBonus[Index].HealthBonus;
+					if (default.SetArmorHealthBonus[Index].ReplaceHPStatType != eStat_Invalid)
+					{
+						Template.UIStatMarkups[i].StatType = default.SetArmorHealthBonus[Index].ReplaceHPStatType;	
+						if (Template.UIStatMarkups[i].StatType == eStat_ShieldHP)
+						{
+							Template.UIStatMarkups[i].StatLabel	= default.strAblativeShieldHPLabel;
+						}											
+					}
+					`LOG("Setting stat markup for armor:" @ Template.DataName @ "to" @ Template.UIStatMarkups[i].StatModifier @ Template.UIStatMarkups[i].StatType @ Template.UIStatMarkups[i].StatLabel @ "for ability:" @ AbilityName, default.bLog, 'ArmorOverhaul');
+					break;
+				}
 			}
+			break;
 		}
 	}
 }
@@ -251,146 +287,4 @@ static private function bool ShouldDisplayBonus_T19()
 static private function bool ShouldDisplayBonus_T20()
 {
 	return class'XComGameState_ArmorOverhaul'.static.GetShieldBonus() == 20;
-}
-//	===================================================================================================================================
-//														TEMPLATE PATCHING HELPERS
-//	===================================================================================================================================
-
-static private function IterateTemplatesAllDiff(class TemplateClass, delegate<ModifyTemplate> ModifyTemplateFn)
-{
-    local X2DataTemplate                                    IterateTemplate;
-    local X2DataTemplate                                    DataTemplate;
-    local array<X2DataTemplate>                             DataTemplates;
-    local X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2    CDO;
-    
-    local X2ItemTemplateManager             ItemMgr;
-    local X2AbilityTemplateManager          AbilityMgr;
-    local X2CharacterTemplateManager        CharMgr;
-    local X2StrategyElementTemplateManager  StratMgr;
-    local X2SoldierClassTemplateManager     ClassMgr;
- 
-    if (ClassIsChildOf(TemplateClass, class'X2ItemTemplate'))
-    {
-        CDO = GetCDO();
-        ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
- 
-        foreach ItemMgr.IterateTemplates(IterateTemplate)
-        {
-            ItemMgr.FindDataTemplateAllDifficulties(IterateTemplate.DataName, DataTemplates);
-            foreach DataTemplates(DataTemplate)
-            {   
-                CDO.CallModifyTemplateFn(ModifyTemplateFn, DataTemplate);
-            }
-        }
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2AbilityTemplate'))
-    {
-        CDO = GetCDO();
-        AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
- 
-        foreach AbilityMgr.IterateTemplates(IterateTemplate)
-        {
-            AbilityMgr.FindDataTemplateAllDifficulties(IterateTemplate.DataName, DataTemplates);
-            foreach DataTemplates(DataTemplate)
-            {
-                CDO.CallModifyTemplateFn(ModifyTemplateFn, DataTemplate);
-            }
-        }
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2CharacterTemplate'))
-    {
-        CDO = GetCDO();
-        CharMgr = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
-        foreach CharMgr.IterateTemplates(IterateTemplate)
-        {
-            CharMgr.FindDataTemplateAllDifficulties(IterateTemplate.DataName, DataTemplates);
-            foreach DataTemplates(DataTemplate)
-            {
-                CDO.CallModifyTemplateFn(ModifyTemplateFn, DataTemplate);
-            }
-        }
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2StrategyElementTemplate'))
-    {
-        CDO = GetCDO();
-        StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-        foreach StratMgr.IterateTemplates(IterateTemplate)
-        {
-            StratMgr.FindDataTemplateAllDifficulties(IterateTemplate.DataName, DataTemplates);
-            foreach DataTemplates(DataTemplate)
-            {
-                CDO.CallModifyTemplateFn(ModifyTemplateFn, DataTemplate);
-            }
-        }
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2SoldierClassTemplate'))
-    {
-        
-        CDO = GetCDO();
-        ClassMgr = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
-        foreach ClassMgr.IterateTemplates(IterateTemplate)
-        {
-            ClassMgr.FindDataTemplateAllDifficulties(IterateTemplate.DataName, DataTemplates);
-            foreach DataTemplates(DataTemplate)
-            {
-                CDO.CallModifyTemplateFn(ModifyTemplateFn, DataTemplate);
-            }
-        }
-    }    
-}
- 
-static private function ModifyTemplateAllDiff(name TemplateName, class TemplateClass, delegate<ModifyTemplate> ModifyTemplateFn)
-{
-    local X2DataTemplate                                    DataTemplate;
-    local array<X2DataTemplate>                             DataTemplates;
-    local X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2    CDO;
-    
-    local X2ItemTemplateManager             ItemMgr;
-    local X2AbilityTemplateManager          AbilityMgr;
-    local X2CharacterTemplateManager        CharMgr;
-    local X2StrategyElementTemplateManager  StratMgr;
-    local X2SoldierClassTemplateManager     ClassMgr;
- 
-    if (ClassIsChildOf(TemplateClass, class'X2ItemTemplate'))
-    {
-        ItemMgr = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
-        ItemMgr.FindDataTemplateAllDifficulties(TemplateName, DataTemplates);
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2AbilityTemplate'))
-    {
-        AbilityMgr = class'X2AbilityTemplateManager'.static.GetAbilityTemplateManager();
-        AbilityMgr.FindDataTemplateAllDifficulties(TemplateName, DataTemplates);
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2CharacterTemplate'))
-    {
-        CharMgr = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
-        CharMgr.FindDataTemplateAllDifficulties(TemplateName, DataTemplates);
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2StrategyElementTemplate'))
-    {
-        StratMgr = class'X2StrategyElementTemplateManager'.static.GetStrategyElementTemplateManager();
-        StratMgr.FindDataTemplateAllDifficulties(TemplateName, DataTemplates);
-    }
-    else if (ClassIsChildOf(TemplateClass, class'X2SoldierClassTemplate'))
-    {
-        ClassMgr = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
-        ClassMgr.FindDataTemplateAllDifficulties(TemplateName, DataTemplates);
-    }
-    else return;
-    
-    CDO = GetCDO();
-    foreach DataTemplates(DataTemplate)
-    {
-        CDO.CallModifyTemplateFn(ModifyTemplateFn, DataTemplate);
-    }
-}
- 
-static private function X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2 GetCDO()
-{
-    return X2DownloadableContentInfo_WOTCDefensiveItemOverhaul2(class'XComEngine'.static.GetClassDefaultObjectByName(default.Class.Name));
-}
- 
-protected function CallModifyTemplateFn(delegate<ModifyTemplate> ModifyTemplateFn, X2DataTemplate DataTemplate)
-{
-    ModifyTemplateFn(DataTemplate);
 }
