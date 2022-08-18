@@ -50,35 +50,28 @@ var bool				bVisibleIfObjectivesNotMet;
 
 ===================================================
 
-[WOTC] Iridar's Armor Overhaul
+[WOTC] Iridar's Armor Overhaul 2.0
 
-Plated Armor now grants +1 HP. Powered Armor grants +2 HP. You can now gradually upgrade all Armor with an increasing bonus of up to +6 Ablative HP by purchasing [b]Ablative Plating[/b] upgrades in Engineering after your perform the required research or autopsy. 
+This mod makes armor grant [b]Ablative HP[/b] instead of normal HP.[list]
+[*] Ablative HP is displayed as an orange bar above soldier's health bar. 
+[*] Taking damage to Ablative HP does not wound the soldier, but Ablative HP normally cannot be restored during a mission.
+[*] Poison and Fall damage bypass Ablative HP and damage soldiers' health directly.
+[*] Armor can be shredded even if the attack dealt only Ablative HP damage.
+[*] When playing with Beta Strike second wave option, Ablative HP bonus is increased as if it was health.[/list]
 
-There are six [b]Ablative Plating[/b] upgrades in total, unlocked by:[list]
-[*] Hybrid Materials
-[*] ADVENT Trooper Autopsy
-[*] ADVENT Shieldbearer Autopsy + Plated Armor
-[*] Chryssalid Autopsy + Plated Armor
-[*] Andromedon Autopsy + Powered Armor
-[*] Sectopod Autopsy + Powered Armor[/list]
-Ablative Plating upgrades can be purchased in any order, but naturally the lategame unlocks are more expensive.  Each upgrade makes all compatible XCOM Armor grant a cumulative bonus of +1 Ablative HP. When playing with Beta Strike second wave option, this bonus is increased as if it was health.[quote]
-Ablative Hit Points are displayed in tactical as an orange bar above soldiers' hitpoints. They normally cannot be restored during the mission.
-Taking damage to Ablative HP does not wound the soldier.
-Fall damage bypasses Ablative HP.
-[/quote]
-This mod also configures the game to make Poison damage bypass Ablative HP and damage health directly, as well as makes it possible to Shred armor pips even when dealing only Ablative HP damage.
+Additionally, this mod smooths the armor upgrade progression by making armor upgrades weaker and cheaper, but also adding six additional Ablative Plating upgrades. Each upgrade provides a cumulative bonus of +1 Ablative HP to all armors.
 
-The number of purchased upgrades is displayed on the armor icons by overlaying a shield icon with one or several chevrons. The total amount of Ablative HP granted by all your upgrades is displayed in the armory on the right. See the screenshots for more context.
+[IMG]https://i.imgur.com/3mIXCnn.png[/IMG]
 
-Finally, this mod makes [b]Plated Armor[/b] and [b]Powered Armor[/b] schematics 50% cheaper to offset the resource cost associated with having to purchase Ablative Plating upgrades.
+The number of purchased upgrades is displayed on the armor icons by overlaying a shield icon with one or several chevrons. The total amount of Ablative HP granted by all your upgrades is displayed in the Armory on the right. See screenshots for more context.
+
+The first couple of Ablative Plating upgrades can be purchased before researching Plated Armor, providing a much needed survivability boost during the early game, and also making techs other than Magnetic Weapons worth pursuing.
 
 [h1]DESIGN GOALS[/h1]
 
 The overall goal of this mod is to make the increases in survivability of your soldiers more granular. Purchasing Predator Armor upgrade in vanilla nearly doubles your soldiers' health, making Tactical layer less challenging and less interesting.
 
-Also, with this mod you can purchase your first couple of Ablative Plating upgrades relatively early, providing a much needed survivability boost, while making early techs other than Magnetic Weapons worth pursuing.
-
-Some numbers: in vanilla, soldiers get up to +6 HP from Warden Armor. With Armor Overhaul they get +2 HP and up to +6 Ablative HP, so the overall raw survivability is increased at most stages of the game.
+With this mod, the total amount of bonus survivability you get from armor is larger compared to vanilla, but you also have to invest more resources if you want additional bonuses.
 
 [h1]REQUIREMENTS[/h1]
 
@@ -131,3 +124,26 @@ Overlay armor icons by [b]NeIVIeSiS[/b].
 Some of the descriptions by [b]lago508[/b].
 
 Please [b][url=https://www.patreon.com/Iridar]support me on Patreon[/url][/b] if you require tech support, have a suggestion for a feature, or simply wish to help me create more awesome mods.
+
+
+----------
+; Vanilla values:
+; Plated Armor: 150 Supplies, 20 Alloys, 6 Advent Trooper corpses
+; Legendary: 300 supplies, 60 Alloys, 12 Advent Trooper corpses
+
+; Powered Armor: 300 Supplies, 40 Alloys, 20 Elerium Crystals
+; Legendary: 600 Supplies, 90 Alloys, 75 Elerium Crystals
+
+; Armor Overhaul splits these values into three groups:
+; 1) Upgrade 0, Upgrade 1: Supplies
+; 2) Plated Armor, Upgrade 2, Upgrade 3: Supplies + Alloys
+; 3) Powered Armor, Upgraed 4, Upgrade 5; Supplies + Alloys + Dust
+
+Total values:
+
+Supplies: 450, Alloys: 60, Elerium: 20, Corpses: 6
+
+Legend:
+Supplies: 900, alloys: 150, Elerium: 75, Corpses: 12
+
+   

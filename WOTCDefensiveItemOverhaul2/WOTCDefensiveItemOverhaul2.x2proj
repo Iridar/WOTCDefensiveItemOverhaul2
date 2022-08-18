@@ -9,6 +9,7 @@ tags= war of the chosen, gameplay</Description>
     <SteamPublishID>0</SteamPublishID>
     <AssemblyName>WOTCDefensiveItemOverhaul2</AssemblyName>
     <RootNamespace>WOTCDefensiveItemOverhaul2</RootNamespace>
+    <ProjectGuid>{09bd8709-44de-467c-b5fd-198e206abdcb}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Config\" />
