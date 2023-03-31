@@ -47,7 +47,7 @@ static event OnPostTemplatesCreated()
 		{
 			foreach ArmorTemplate.Abilities(AbilityName)
 			{
-				if (default.SetArmorHealthBonus.Find('AbilityTemplate', AbilityName) != INDEX_NONE)
+				if (default.SetArmorHealthBonus.Find('AbilityTemplate', AbilityName) != INDEX_NONE || default.PatchArmorStatAbilities.Find(AbilityName) != INDEX_NONE)
 				{
 					PatchArmorTemplate(ArmorTemplate);
 				}
@@ -123,7 +123,7 @@ static private function PatchArmorTemplate(out X2ArmorTemplate Template)
 	local int	Index;
 	local int	i;
 
-	`LOG("Adding Ablative Plating to armor:" @ Template.FriendlyName @ Template.DataName, default.bLog, 'ArmorOverhaul');
+	`LOG("Adding Ablative Plating to armor:" @ Template.GetItemFriendlyNameNoStats() @ Template.DataName, default.bLog, 'ArmorOverhaul');
 
 	Template.Abilities.AddItem('IRI_DefensiveOverhaul_Passive');
 
